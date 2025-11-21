@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POJ Memory Game</title>
+    <meta name="description"
+        content="A futuristic memory card game featuring Pe̍h-ōe-jī phonetic symbols with cyberpunk aesthetics">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Huninn&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="cyberpunk-bg"></div>
+    <div class="grid-overlay"></div>
+
+    <div class="container">
+        <header class="main-header">
+            <div class="title-section">
+                <h1 class="neon-title">
+                    <span class="glitch" data-text="Pe̍h-ōe-jī">Pe̍h-ōe-jī</span>
+                    <span class="subtitle">Kì-ek Giàn-mh</span>
+                </h1>
+            </div>
+
+            <div class="controls">
+                <button class="cyber-btn primary" id="new-game">
+                    <span class="btn-text">KHÍ-KÓ͘</span>
+                    <span class="btn-glow"></span>
+                </button>
+                <select id="difficulty" class="cyber-select">
+                    <option value="vowels">Bó-im (6 tùi)</option>
+                    <option value="initials" selected>Chú-im (17 tùi)</option>
+                    <option value="all">Chú-bó-im (23 tùi)</option>
+                </select>
+            </div>
+
+            <div class="stats-panel">
+                <div class="stat-item">
+                    <span class="stat-label">Sî-kan</span>
+                    <span class="stat-value" id="timer">00:00</span>
+                </div>
+
+                <div class="stat-item">
+                    <span class="stat-label">Hian</span>
+                    <span class="stat-value" id="flips">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Tio̍h</span>
+                    <span class="stat-value" id="matched">0/17</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="game-container">
+            <div id="game-board" class="game-board"></div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-title" class="modal-title"></h2>
+            <p id="modal-message" class="modal-message"></p>
+            <button class="cyber-btn primary" id="modal-btn">
+                <span class="btn-text">KOH BEH SŃG</span>
+                <span class="btn-glow"></span>
+            </button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+
+</html>
