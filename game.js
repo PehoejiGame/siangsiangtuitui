@@ -54,12 +54,6 @@ class POJMemoryGame {
                 this.gridCols = 6;
                 this.gridRows = 4; // 6x4 = 24 cards (11 pairs + 2 extra slots)
                 break;
-            case 'all':
-                this.symbolSet = [...this.pojInitials, ...this.pojVowels]; // 23 symbols
-                this.totalPairs = 23;
-                this.gridCols = 8;
-                this.gridRows = 6; // 8x6 = 48 cards (23 pairs + 2 extra slots)
-                break;
             case 'initials':
             default:
                 this.symbolSet = this.pojInitials; // 17 initials
@@ -285,7 +279,7 @@ class POJMemoryGame {
                 const cardSetName = cardSetNames[this.cardSet] || this.cardSet;
 
                 setTimeout(() => {
-                    this.showModal('VICTORY!', 'Lí iâⁿ ah!', {
+                    this.showModal('Oân-sêng!', 'Ū kàu chán! Lí iâⁿ--ah!', {
                         time: time,
                         flips: this.flips,
                         cardSet: cardSetName,
@@ -360,8 +354,8 @@ class POJMemoryGame {
             const statLabels = {
                 time: 'Sî-kan',
                 flips: 'Hian',
-                cardSet: 'Pâi-cho͘',
-                accuracy: 'Chún-khak'
+                cardSet: 'Pâi',
+                accuracy: 'Chún'
             };
 
             Object.entries(stats).forEach(([key, value]) => {
