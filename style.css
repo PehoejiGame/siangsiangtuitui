@@ -143,7 +143,7 @@ body {
 }
 
 .neon-title {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     font-weight: 900;
     margin: 0;
     display: flex;
@@ -207,7 +207,7 @@ body {
 }
 
 .subtitle {
-    font-size: 0.7rem;
+    font-size: 0.85rem;
     font-weight: 700;
     letter-spacing: 0.05rem;
     color: var(--neon-magenta);
@@ -624,8 +624,8 @@ body {
     border: 3px solid var(--cp-yellow);
     transform: rotateY(180deg);
     box-shadow: 0 0 30px rgba(252, 227, 0, 0.5);
-    /* Dynamic font size based on grid columns - increased scaling factor */
-    font-size: clamp(1.5rem, calc(25vw / var(--grid-cols)), 4rem);
+    /* Dynamic font size calculated by JavaScript based on longest text */
+    font-size: var(--card-font-size, clamp(1.2rem, calc(20vw / var(--grid-cols)), 3.5rem));
 }
 
 .card-front.initial {
@@ -913,11 +913,11 @@ body {
     }
 
     .neon-title {
-        font-size: 2rem;
+        font-size: 2.2rem;
     }
 
     .subtitle {
-        font-size: 0.8rem;
+        font-size: 0.95rem;
         letter-spacing: 0.1rem;
     }
 
@@ -932,13 +932,13 @@ body {
     .cyber-btn {
         width: auto;
         padding: 0.75rem 1.2rem;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
     }
 
     .cyber-select {
         width: auto;
         padding: 0.75rem 1.2rem;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
     }
 
     .stats-panel {
@@ -995,14 +995,14 @@ body {
 
 
     .neon-title {
-        font-size: 2.5rem;
+        font-size: 2.8rem;
         flex-direction: row;
         align-items: center;
         gap: 1.8rem;
     }
 
     .subtitle {
-        font-size: 0.85rem;
+        font-size: 1rem;
         letter-spacing: 0.12rem;
     }
 
@@ -1013,14 +1013,14 @@ body {
 
     .cyber-btn {
         padding: 0.8rem 1.5rem;
-        font-size: 0.9rem;
+        font-size: 1rem;
         letter-spacing: 0.15rem;
         clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
     }
 
     .cyber-select {
         padding: 0.8rem 1.5rem;
-        font-size: 0.9rem;
+        font-size: 1rem;
         letter-spacing: 0.15rem;
         clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
     }

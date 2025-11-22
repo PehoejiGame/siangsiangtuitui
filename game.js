@@ -181,6 +181,70 @@ class POJMemoryGame {
         });
 
         this.updateStats();
+        this.adjustCardFontSize();
+    }
+
+    adjustCardFontSize() {
+        // Find the longest text in the current card set
+        const longestText = this.symbolSet.reduce((longest, symbol) =>
+            symbol.length > longest.length ? symbol : longest, '');
+
+        // Create a temporary element to measure text
+        const tempCard = document.createElement('div');
+        tempCard.style.position = 'absolute';
+        tempCard.style.visibility = 'hidden';
+        tempCard.className = 'card';
+        document.body.appendChild(tempCard);
+
+        const tempInner = document.createElement('div');
+        tempInner.className = 'card-inner';
+        tempCard.appendChild(tempInner);
+
+        const tempFront = document.createElement('div');
+        tempFront.className = 'card-front';
+        tempInner.appendChild(tempFront);
+
+        const tempSymbol = document.createElement('span');
+        tempSymbol.className = 'symbol';
+        tempSymbol.textContent = longestText;
+        tempFront.appendChild(tempSymbol);
+
+        // Get actual card dimensions
+        const actualCard = document.querySelector('.card');
+        if (!actualCard) {
+            document.body.removeChild(tempCard);
+            return;
+        }
+
+        const cardWidth = actualCard.offsetWidth;
+        const cardHeight = actualCard.offsetHeight;
+        const padding = 20; // Padding inside card
+
+        // Binary search for optimal font size
+        let minSize = 10;
+        let maxSize = 100;
+        let optimalSize = minSize;
+
+        while (maxSize - minSize > 0.5) {
+            const testSize = (minSize + maxSize) / 2;
+            tempSymbol.style.fontSize = testSize + 'px';
+
+            const textWidth = tempSymbol.offsetWidth;
+            const textHeight = tempSymbol.offsetHeight;
+
+            if (textWidth <= cardWidth - padding && textHeight <= cardHeight - padding) {
+                optimalSize = testSize;
+                minSize = testSize;
+            } else {
+                maxSize = testSize;
+            }
+        }
+
+        // Apply the optimal font size to all cards
+        document.documentElement.style.setProperty('--card-font-size', optimalSize + 'px');
+
+        // Clean up
+        document.body.removeChild(tempCard);
     }
 
     createCardElement(card, index) {
