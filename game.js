@@ -310,9 +310,14 @@ class POJMemoryGame {
             this.resetGame();
         });
 
-        // Language change
-        document.getElementById('language-select')?.addEventListener('change', (e) => {
-            this.currentLang = e.target.value;
+        // Language toggle
+        const langToggle = document.getElementById('language-toggle');
+        langToggle?.addEventListener('click', () => {
+            const currentLang = langToggle.dataset.lang;
+            const newLang = currentLang === 'poj' ? 'en' : 'poj';
+            langToggle.dataset.lang = newLang;
+            langToggle.querySelector('.lang-text').textContent = newLang === 'poj' ? 'EN' : 'POJ';
+            this.currentLang = newLang;
             this.translateUI();
         });
 
