@@ -1,10 +1,22 @@
 @font-face {
     font-family: 'Huninn';
     src:
-        local('jf-openhuninn-2.1.ttf'),
-        url('../siangsiangtuitui/jf-openhuninn-2.1.ttf') format('truetype');
+        url('jf-openhuninn-2.1-subset.woff2') format('woff2'),
+        url('jf-openhuninn-2.1-subset.woff') format('woff');
     font-weight: normal;
     font-style: normal;
+    font-display: swap;
+    unicode-range: U+21, U+24-25, U+28-29, U+2D-3A, U+3C-3E, U+41-50, U+53-54, U+56-57, U+59, U+5B, U+5D, U+61-70, U+72-7B, U+7D, U+C2, U+CD, U+D3, U+E0-E2, U+EA, U+EC-EE, U+F2-F3, U+F9-FA, U+101, U+12A-12B, U+14C, U+16A, U+30D, U+358, U+207F;
+}
+
+@font-face {
+    font-family: 'Huninn';
+    src:
+        local('jf-openhuninn-2.1.ttf'),
+        url('jf-openhuninn-2.1.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
 }
 
 /* ==========================================================================
