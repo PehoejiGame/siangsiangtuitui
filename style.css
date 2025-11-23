@@ -156,7 +156,7 @@ body {
     justify-content: center;
 }
 
-.controls {
+.control-buttons {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -165,13 +165,13 @@ body {
     align-items: center;
 }
 
-.controls .cyber-btn {
+.control-buttons .cyber-btn {
     flex-shrink: 0;
     padding: 0.6rem 1rem;
     font-size: 1.4rem;
 }
 
-.controls .cyber-select {
+.control-buttons .cyber-select {
     flex: 1;
     min-width: 0;
     padding: 0.6rem 1rem;
@@ -720,7 +720,7 @@ body {
 }
 
 /* Controls */
-.controls {
+.control-buttons {
     display: flex;
     gap: 1rem;
     flex-shrink: 0;
@@ -740,14 +740,16 @@ body {
     transition: all 0.3s ease;
     white-space: nowrap;
     clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
-    width: 100%;
+    width: auto;
     min-height: 44px;
 }
 
 .cyber-btn.primary {
     border-color: var(--cp-blue);
     color: var(--cp-blue);
-    font-size: 1.4rem;
+    font-size: 1.3rem;
+    display: flex;
+    flex: 1;
 }
 
 .btn-text {
@@ -796,12 +798,18 @@ body {
 }
 
 /* Cyber Select */
+.card-set-selector {
+    display: flex;
+    gap: 1rem;
+    flex-shrink: 0;
+}
+
 .cyber-select {
     padding: 0.75rem 1rem;
     background: var(--panel-bg);
     border: 2px solid var(--cp-cyan);
     color: var(--cp-cyan);
-    font-size: 0.85rem;
+    font-size: 1.3rem;
     font-weight: 700;
     letter-spacing: 0.1rem;
     cursor: pointer;
@@ -1003,4 +1011,14 @@ body {
 .cyber-icon-btn.muted:hover {
     background: rgba(255, 0, 255, 0.2);
     box-shadow: 0 0 15px var(--neon-pink);
+}
+
+@media(max-width: 500px) {
+    .neon-title {
+        font-size: 2.5rem;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+    }
 }
