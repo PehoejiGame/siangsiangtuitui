@@ -6,15 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PE̍H-ŌE-JĪ Siang-siang-tùi-tùi Kì-ek Giàn-mh</title>
     <meta name="description" content="A memory card game featuring Pe̍h-ōe-jī phonetic symbols.">
-    <meta name="description" content="A memory card game featuring Pe̍h-ōe-jī phonetic symbols.">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+    <!-- Background Elements -->
     <div class="cyberpunk-bg"></div>
     <div class="grid-overlay"></div>
 
     <div class="container">
+        <!-- Header Section -->
         <header class="main-header">
             <div class="title-section">
                 <h1 class="neon-title">
@@ -27,6 +28,7 @@
             </div>
 
             <div class="header-bottom-row">
+                <!-- Game Controls -->
                 <div class="card-set-selector">
                     <select id="card-set" class="cyber-select">
                         <option value="initials" data-i18n="cardSets.initials">Chú-im jī-thâu (17 tùi)</option>
@@ -46,18 +48,25 @@
                         <span class="btn-text" data-i18n="newGame">KHÍ-KÓ͘</span>
                         <span class="btn-glow"></span>
                     </button>
-                    <button id="language-toggle" class="cyber-icon-btn" aria-label="Toggle Language" data-lang="poj">
-                        <span class="lang-text">EN</span>
-                    </button>
-                    <button id="audio-btn" class="cyber-icon-btn" aria-label="Toggle Sound">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                        </svg>
-                    </button>
+
+                    <!-- Settings Row -->
+                    <div class="settings-row">
+                        <button id="language-toggle" class="cyber-icon-btn" aria-label="Toggle Language"
+                            data-lang="poj">
+                            <span class="lang-text">EN</span>
+                        </button>
+                        <button id="audio-btn" class="cyber-icon-btn" aria-label="Toggle Sound">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
 
+                <!-- Stats Panel -->
                 <div class="stats-panel">
                     <div class="stat-item">
                         <span class="stat-label" data-i18n="time">Sî-kan</span>
@@ -76,11 +85,13 @@
             </div>
         </header>
 
+        <!-- Game Board -->
         <div class="game-container">
             <div id="game-board" class="game-board"></div>
         </div>
     </div>
 
+    <!-- Result Modal -->
     <div id="modal" class="modal">
         <div class="modal-content">
             <h2 id="modal-title" class="modal-title"></h2>
@@ -93,6 +104,7 @@
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="translations.js"></script>
     <script src="game.js"></script>
 </body>

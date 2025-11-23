@@ -2,7 +2,9 @@
 
 class POJMemoryGame {
     constructor() {
-        // POJ Symbol Set
+        // ==========================================================================
+        // Configuration: Symbol Sets
+        // ==========================================================================
         this.pojInitials = [
             'p', 'ph', 'm', 'b',
             't', 'th', 'n', 'l',
@@ -14,11 +16,14 @@ class POJMemoryGame {
         this.pojDiphthongs = ['ai', 'au', 'ia', 'iu', 'io', 'io͘', 'iau', 'ui', 'oa', 'oe', 'oai'];
         this.pojNasals = ['aⁿ', 'iⁿ', 'oⁿ', 'eⁿ', 'aiⁿ', 'auⁿ', 'iaⁿ', 'iuⁿ', 'iauⁿ', 'uiⁿ', 'oaⁿ', 'oaiⁿ'];
         this.pojNasalFinals = ['am', 'an', 'ang', 'im', 'iam', 'iang', 'iong', 'un', 'om', 'ong', 'oan', 'oang', 'ian', 'eng'];
+
         // Split stop finals into -h and -ptk
         this.pojStopFinalsH = ['ah', 'ih', 'uh', 'o͘h', 'eh', 'oh'];
         this.pojStopFinalsPTK = ['ap', 'at', 'ak', 'ip', 'it', 'ut', 'op', 'ok', 'iap', 'iak', 'iok', 'oat', 'oak', 'iat', 'ek'];
 
-        // Game state
+        // ==========================================================================
+        // Game State
+        // ==========================================================================
         this.cards = [];
         this.flippedCards = [];
         this.matchedPairs = 0;
@@ -34,34 +39,21 @@ class POJMemoryGame {
         this.initGame();
     }
 
+    // ==========================================================================
+    // Initialization
+    // ==========================================================================
     async initGame() {
         this.translateUI();
-        this.getCardSet();
-        this.createCardSet();
-        this.shuffleCards();
+        this.setupGame();
         this.renderBoard();
         this.startTimer();
         this.attachEventListeners();
     }
 
-    translateUI() {
-        const t = TRANSLATIONS[this.currentLang];
-
-        document.querySelectorAll('[data-i18n]').forEach(element => {
-            const key = element.getAttribute('data-i18n');
-            const keys = key.split('.');
-            let value = t;
-            for (const k of keys) {
-                value = value[k];
-            }
-            if (value) {
-                if (element.tagName === 'OPTION') {
-                    element.textContent = value;
-                } else {
-                    element.textContent = value;
-                }
-            }
-        });
+    setupGame() {
+        this.getCardSet();
+        this.createCardSet();
+        this.shuffleCards();
     }
 
     getCardSet() {
@@ -110,8 +102,8 @@ class POJMemoryGame {
             default:
                 this.symbolSet = this.pojInitials; // 17 initials
                 this.totalPairs = 17;
-                this.gridCols = 4;
-                this.gridRows = 9; // 4x9 = 36 cards
+                this.gridCols = 6;
+                this.gridRows = 6; // 6x6 = 36 cards
                 break;
         }
     }
@@ -123,7 +115,7 @@ class POJMemoryGame {
         const selectedSymbols = this.symbolSet.slice(0, this.totalPairs);
 
         // Create pairs
-        selectedSymbols.forEach((symbol, index) => {
+        selectedSymbols.forEach((symbol) => {
             let type = 'initial';
             if (this.pojVowels.includes(symbol)) {
                 type = 'vowel';
@@ -136,7 +128,6 @@ class POJMemoryGame {
             } else if (this.pojStopFinalsH.includes(symbol) || this.pojStopFinalsPTK.includes(symbol)) {
                 type = 'stopFinal';
             }
-
 
             // First card of pair
             this.cards.push({
@@ -166,6 +157,107 @@ class POJMemoryGame {
         }
     }
 
+    // ==========================================================================
+    // Game Logic
+    // ==========================================================================
+    handleCardClick(index) {
+        const card = this.cards[index];
+
+        // Ignore if card is already matched or flipped
+        if (card.matched || card.flipped) {
+            return;
+        }
+
+        // Flip the card
+        card.flipped = true;
+        this.flips++;
+        this.flippedCards.push(index);
+        this.updateCardElement(index);
+        this.updateStats();
+
+        // Play pronunciation
+        this.playAudio(card.symbol);
+
+        // Check if we have 2 cards flipped
+        if (this.flippedCards.length === 2) {
+            this.isProcessing = true;
+            this.updateStats();
+
+            setTimeout(() => {
+                this.checkMatch();
+            }, 800);
+        }
+    }
+
+    checkMatch() {
+        const [index1, index2] = this.flippedCards;
+        const card1 = this.cards[index1];
+        const card2 = this.cards[index2];
+
+        if (card1.symbol === card2.symbol) {
+            // Match!
+            card1.matched = true;
+            card2.matched = true;
+            this.matchedPairs++;
+
+            this.updateCardElement(index1);
+            this.updateCardElement(index2);
+
+            this.flippedCards = [];
+            this.isProcessing = false;
+
+            // Check win condition
+            if (this.matchedPairs === this.totalPairs) {
+                this.handleWin();
+            }
+        } else {
+            // No match - flip back
+            card1.flipped = false;
+            card2.flipped = false;
+
+            this.updateCardElement(index1);
+            this.updateCardElement(index2);
+
+            this.flippedCards = [];
+            this.isProcessing = false;
+        }
+
+        this.updateStats();
+    }
+
+    handleWin() {
+        this.stopTimer();
+        const time = this.getElapsedTime();
+        const accuracy = Math.round((this.totalPairs / this.flips) * 100);
+        const t = TRANSLATIONS[this.currentLang];
+        const cardSetName = t.cardSetNames[this.cardSet] || this.cardSet;
+
+        setTimeout(() => {
+            this.showModal(t.modalTitle, t.modalMessage, {
+                time: time,
+                flips: this.flips,
+                cardSet: cardSetName,
+                accuracy: `${accuracy}%`
+            });
+        }, 500);
+    }
+
+    async resetGame() {
+        this.stopTimer();
+        this.flippedCards = [];
+        this.matchedPairs = 0;
+        this.flips = 0;
+        this.isProcessing = false;
+        this.hideModal();
+
+        this.setupGame();
+        this.renderBoard();
+        this.startTimer();
+    }
+
+    // ==========================================================================
+    // UI Rendering
+    // ==========================================================================
     renderBoard() {
         const board = document.getElementById('game-board');
         board.innerHTML = '';
@@ -186,6 +278,60 @@ class POJMemoryGame {
         setTimeout(() => {
             this.adjustCardFontSize();
         }, 100);
+    }
+
+    createCardElement(card, index) {
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'card';
+        cardDiv.dataset.id = card.id;
+        cardDiv.dataset.index = index;
+
+        if (card.matched) {
+            cardDiv.classList.add('matched');
+        }
+        if (card.flipped) {
+            cardDiv.classList.add('flipped');
+        }
+
+        // Create card structure using DOM methods
+        const inner = document.createElement('div');
+        inner.className = 'card-inner';
+
+        const back = document.createElement('div');
+        back.className = 'card-back';
+
+        const front = document.createElement('div');
+        front.className = `card-front ${card.type}`;
+
+        const symbol = document.createElement('span');
+        symbol.className = 'symbol';
+        symbol.textContent = card.symbol;
+
+        front.appendChild(symbol);
+        inner.appendChild(back);
+        inner.appendChild(front);
+        cardDiv.appendChild(inner);
+
+        return cardDiv;
+    }
+
+    updateCardElement(index) {
+        const card = this.cards[index];
+        const cardElement = document.querySelector(`[data-index="${index}"]`);
+
+        if (cardElement) {
+            // Toggle classes instead of resetting to avoid re-triggering animations
+            if (card.flipped) {
+                cardElement.classList.add('flipped');
+            } else {
+                cardElement.classList.remove('flipped');
+            }
+            if (card.matched) {
+                cardElement.classList.add('matched');
+            } else {
+                cardElement.classList.remove('matched');
+            }
+        }
     }
 
     adjustCardFontSize() {
@@ -251,57 +397,98 @@ class POJMemoryGame {
         document.body.removeChild(tempCard);
     }
 
-    createCardElement(card, index) {
-        const cardDiv = document.createElement('div');
-        cardDiv.className = 'card';
-        cardDiv.dataset.id = card.id;
-        cardDiv.dataset.index = index;
-
-        if (card.matched) {
-            cardDiv.classList.add('matched');
-        }
-        if (card.flipped) {
-            cardDiv.classList.add('flipped');
-        }
-
-        // Create card structure using DOM methods
-        const inner = document.createElement('div');
-        inner.className = 'card-inner';
-
-        const back = document.createElement('div');
-        back.className = 'card-back';
-
-        const front = document.createElement('div');
-        front.className = `card-front ${card.type}`;
-
-        const symbol = document.createElement('span');
-        symbol.className = 'symbol';
-        symbol.textContent = card.symbol;
-
-        front.appendChild(symbol);
-        inner.appendChild(back);
-        inner.appendChild(front);
-        cardDiv.appendChild(inner);
-
-        return cardDiv;
+    updateStats() {
+        document.getElementById('flips').textContent = this.flips;
+        document.getElementById('matched').textContent = `${this.matchedPairs}/${this.totalPairs}`;
     }
 
+    translateUI() {
+        const t = TRANSLATIONS[this.currentLang];
+
+        document.querySelectorAll('[data-i18n]').forEach(element => {
+            const key = element.getAttribute('data-i18n');
+            const keys = key.split('.');
+            let value = t;
+            for (const k of keys) {
+                value = value[k];
+            }
+            if (value) {
+                element.textContent = value;
+            }
+        });
+    }
+
+    // ==========================================================================
+    // Modal & Timer
+    // ==========================================================================
+    showModal(title, message, stats = null) {
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-message').textContent = message;
+
+        const statsContainer = document.getElementById('modal-stats');
+        statsContainer.innerHTML = '';
+
+        if (stats) {
+            const t = TRANSLATIONS[this.currentLang];
+            const statLabels = {
+                time: t.modalTime,
+                flips: t.modalFlips,
+                cardSet: t.modalCardSet,
+                accuracy: t.modalAccuracy
+            };
+
+            Object.entries(stats).forEach(([key, value]) => {
+                const item = document.createElement('div');
+                item.className = 'modal-stat-item';
+                item.innerHTML = `
+                    <span class="modal-stat-label">${statLabels[key] || key}</span>
+                    <span class="modal-stat-value">${value}</span>
+                `;
+                statsContainer.appendChild(item);
+            });
+        }
+
+        document.getElementById('modal').classList.add('active');
+    }
+
+    hideModal() {
+        document.getElementById('modal').classList.remove('active');
+    }
+
+    startTimer() {
+        this.startTime = Date.now();
+        this.timerInterval = setInterval(() => {
+            document.getElementById('timer').textContent = this.getElapsedTime();
+        }, 1000);
+    }
+
+    stopTimer() {
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+    }
+
+    getElapsedTime() {
+        const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    // ==========================================================================
+    // Event Listeners
+    // ==========================================================================
     attachEventListeners() {
         console.log('Attaching event listeners');
         const board = document.getElementById('game-board');
         board.addEventListener('click', (e) => {
-            console.log('Board clicked', e.target);
             const cardElement = e.target.closest('.card');
             if (cardElement) {
-                console.log('Card clicked', cardElement.dataset.index);
                 if (!this.isProcessing) {
                     const index = parseInt(cardElement.dataset.index);
                     this.handleCardClick(index);
-                } else {
-                    console.log('Game is processing, click ignored');
                 }
-            } else {
-                console.log('Click not on card');
             }
         });
 
@@ -341,40 +528,11 @@ class POJMemoryGame {
         });
     }
 
-    handleCardClick(index) {
-        const card = this.cards[index];
-
-        // Ignore if card is already matched or flipped
-        if (card.matched || card.flipped) {
-            return;
-        }
-
-        // Flip the card
-        card.flipped = true;
-        this.flips++;
-        this.flippedCards.push(index);
-        this.updateCardElement(index);
-        this.updateStats();
-
-        // Play pronunciation
-        this.playAudio(card.symbol);
-
-        // Check if we have 2 cards flipped
-        if (this.flippedCards.length === 2) {
-            this.isProcessing = true;
-            this.updateStats();
-
-            setTimeout(() => {
-                this.checkMatch();
-            }, 800);
-        }
-    }
-
+    // ==========================================================================
+    // Audio
+    // ==========================================================================
     playAudio(symbol) {
         if (!this.audioEnabled) return;
-        // Construct path to audio file
-        // Note: User needs to provide audio files in 'audio/' directory
-        // Format: audio/p.mp3, audio/ph.mp3, etc.
 
         // Handle special characters for filenames to ensure cross-platform compatibility
         let filename = symbol;
@@ -399,153 +557,11 @@ class POJMemoryGame {
             console.log(`Audio not found for ${symbol}:`, e);
         });
     }
-
-    checkMatch() {
-        const [index1, index2] = this.flippedCards;
-        const card1 = this.cards[index1];
-        const card2 = this.cards[index2];
-
-        if (card1.symbol === card2.symbol) {
-            // Match!
-            card1.matched = true;
-            card2.matched = true;
-            this.matchedPairs++;
-
-            this.updateCardElement(index1);
-            this.updateCardElement(index2);
-
-            this.flippedCards = [];
-            this.isProcessing = false;
-
-            // Check win condition
-            if (this.matchedPairs === this.totalPairs) {
-                this.stopTimer();
-                this.stopTimer();
-                const time = this.getElapsedTime();
-                const accuracy = Math.round((this.totalPairs / this.flips) * 100);
-                const t = TRANSLATIONS[this.currentLang];
-                const cardSetName = t.cardSetNames[this.cardSet] || this.cardSet;
-
-                setTimeout(() => {
-                    this.showModal(t.modalTitle, t.modalMessage, {
-                        time: time,
-                        flips: this.flips,
-                        cardSet: cardSetName,
-                        accuracy: `${accuracy}%`
-                    });
-                }, 500);
-            }
-        } else {
-            // No match - flip back
-            card1.flipped = false;
-            card2.flipped = false;
-
-            this.updateCardElement(index1);
-            this.updateCardElement(index2);
-
-            this.flippedCards = [];
-            this.isProcessing = false;
-        }
-
-        this.updateStats();
-    }
-
-    updateCardElement(index) {
-        const card = this.cards[index];
-        const cardElement = document.querySelector(`[data-index="${index}"]`);
-
-        if (cardElement) {
-            // Toggle classes instead of resetting to avoid re-triggering animations
-            if (card.flipped) {
-                cardElement.classList.add('flipped');
-            } else {
-                cardElement.classList.remove('flipped');
-            }
-            if (card.matched) {
-                cardElement.classList.add('matched');
-            } else {
-                cardElement.classList.remove('matched');
-            }
-        }
-    }
-
-    startTimer() {
-        this.startTime = Date.now();
-        this.timerInterval = setInterval(() => {
-            document.getElementById('timer').textContent = this.getElapsedTime();
-        }, 1000);
-    }
-
-    stopTimer() {
-        if (this.timerInterval) {
-            clearInterval(this.timerInterval);
-            this.timerInterval = null;
-        }
-    }
-
-    getElapsedTime() {
-        const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
-        const minutes = Math.floor(elapsed / 60);
-        const seconds = elapsed % 60;
-        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-    }
-
-    updateStats() {
-        document.getElementById('flips').textContent = this.flips;
-        document.getElementById('matched').textContent = `${this.matchedPairs}/${this.totalPairs}`;
-    }
-
-    showModal(title, message, stats = null) {
-        document.getElementById('modal-title').textContent = title;
-        document.getElementById('modal-message').textContent = message;
-
-        const statsContainer = document.getElementById('modal-stats');
-        statsContainer.innerHTML = '';
-
-        if (stats) {
-            const t = TRANSLATIONS[this.currentLang];
-            const statLabels = {
-                time: t.modalTime,
-                flips: t.modalFlips,
-                cardSet: t.modalCardSet,
-                accuracy: t.modalAccuracy
-            };
-
-            Object.entries(stats).forEach(([key, value]) => {
-                const item = document.createElement('div');
-                item.className = 'modal-stat-item';
-                item.innerHTML = `
-                    <span class="modal-stat-label">${statLabels[key] || key}</span>
-                    <span class="modal-stat-value">${value}</span>
-                `;
-                statsContainer.appendChild(item);
-            });
-        }
-
-        document.getElementById('modal').classList.add('active');
-    }
-
-    hideModal() {
-        document.getElementById('modal').classList.remove('active');
-    }
-
-    async resetGame() {
-        this.stopTimer();
-        this.flippedCards = [];
-        this.matchedPairs = 0;
-        this.flips = 0;
-        this.isProcessing = false;
-        this.hideModal();
-
-        this.getCardSet();
-        this.createCardSet();
-        this.shuffleCards();
-        this.renderBoard();
-        this.startTimer();
-    }
 }
 
-// Initialize game when DOM is loaded
+// ==========================================================================
+// App Entry Point
+// ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
     const game = new POJMemoryGame();
 
