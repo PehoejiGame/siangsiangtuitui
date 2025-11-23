@@ -71,7 +71,7 @@ const TRANSLATIONS = {
 
         // Modal
         modalTitle: "Oân-sêng!",
-        modalMessage: "Ū kàu chán! Lí iâⁿ--ah!",
+        modalMessage: "Ū kàu chán! Lí kòe-koan--ah!",
         playAgain: "KOH LÂI",
 
         // Modal Stats
