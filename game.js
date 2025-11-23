@@ -35,6 +35,7 @@ class POJMemoryGame {
         this.cardSet = 'vowels';
         this.currentLang = 'poj';
         this.audioEnabled = true;
+        this.audioCache = {}; // Persist audio objects
 
         this.initGame();
     }
@@ -54,6 +55,7 @@ class POJMemoryGame {
         this.getCardSet();
         this.createCardSet();
         this.shuffleCards();
+        this.preloadAudio(); // Preload current set immediately
     }
 
     getCardSet() {
@@ -531,9 +533,7 @@ class POJMemoryGame {
     // ==========================================================================
     // Audio
     // ==========================================================================
-    playAudio(symbol) {
-        if (!this.audioEnabled) return;
-
+    getAudioPath(symbol) {
         // Handle special characters for filenames to ensure cross-platform compatibility
         let filename = symbol;
         if (symbol === 'o͘') {
@@ -549,9 +549,40 @@ class POJMemoryGame {
             filename = filename.replace('ⁿ', 'nn');
         }
 
-        const audioPath = `audio/${filename}.mp3`;
+        return `audio/${filename}.mp3`;
+    }
 
-        const audio = new Audio(audioPath);
+    preloadAudio() {
+        // Preload current set
+        const symbolsToLoad = this.symbolSet.slice(0, this.totalPairs);
+        console.log(`Preloading ${symbolsToLoad.length} audio files...`);
+
+        symbolsToLoad.forEach(symbol => {
+            if (!this.audioCache[symbol]) {
+                const path = this.getAudioPath(symbol);
+                const audio = new Audio();
+                audio.src = path;
+                audio.preload = 'auto';
+                this.audioCache[symbol] = audio;
+            }
+        });
+    }
+
+    playAudio(symbol) {
+        if (!this.audioEnabled) return;
+
+        let audio;
+
+        // Try to use cached audio
+        if (this.audioCache && this.audioCache[symbol]) {
+            audio = this.audioCache[symbol];
+            audio.currentTime = 0; // Reset to start
+        } else {
+            // Fallback if not cached (shouldn't happen if preload works)
+            const audioPath = this.getAudioPath(symbol);
+            audio = new Audio(audioPath);
+        }
+
         audio.play().catch(e => {
             // Audio file might be missing, just log it
             console.log(`Audio not found for ${symbol}:`, e);
