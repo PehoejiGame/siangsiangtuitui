@@ -998,11 +998,11 @@ body {
    ========================================================================== */
 @media(max-width: 500px) {
     .neon-title {
-        font-size: 2.5rem;
+        font-size: 2.3rem;
     }
 
     .subtitle {
-        font-size: 1rem;
+        font-size: 0.8rem;
     }
 
     .cyber-select {
