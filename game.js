@@ -50,6 +50,12 @@ class POJMemoryGame {
         this.startTimer();
         this.attachEventListeners();
         this.preloadAudio(); // Preload all audio files
+
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(() => {
+                this.adjustCardFontSize();
+            });
+        }
     }
 
     setupGame() {
@@ -277,10 +283,9 @@ class POJMemoryGame {
         this.updateStats();
 
         // Initial adjustment
-        // Use setTimeout to ensure DOM is fully rendered and dimensions are available
-        setTimeout(() => {
+        requestAnimationFrame(() => {
             this.adjustCardFontSize();
-        }, 100);
+        });
     }
 
     createCardElement(card, index) {
@@ -338,40 +343,48 @@ class POJMemoryGame {
     }
 
     adjustCardFontSize() {
-        // Find the longest text in the current card set
-        const longestText = this.symbolSet.reduce((longest, symbol) =>
-            symbol.length > longest.length ? symbol : longest, '');
-
-        // Create a temporary element to measure text
-        const tempCard = document.createElement('div');
-        tempCard.style.position = 'absolute';
-        tempCard.style.visibility = 'hidden';
-        tempCard.className = 'card';
-        document.body.appendChild(tempCard);
-
-        const tempInner = document.createElement('div');
-        tempInner.className = 'card-inner';
-        tempCard.appendChild(tempInner);
-
-        const tempFront = document.createElement('div');
-        tempFront.className = 'card-front';
-        tempInner.appendChild(tempFront);
-
-        const tempSymbol = document.createElement('span');
-        tempSymbol.className = 'symbol';
-        tempSymbol.textContent = longestText;
-        tempFront.appendChild(tempSymbol);
-
         // Get actual card dimensions
-        const actualCard = document.querySelector('.card');
+        const actualCard = document.querySelector('#game-board .card');
         if (!actualCard) {
-            document.body.removeChild(tempCard);
             return;
         }
 
         const cardWidth = actualCard.offsetWidth;
         const cardHeight = actualCard.offsetHeight;
-        const padding = 20; // Padding inside card
+        if (cardWidth === 0 || cardHeight === 0) {
+            return;
+        }
+
+        // Create an unconstrained offscreen element to measure symbol dimensions accurately
+        const tempSymbol = document.createElement('span');
+        tempSymbol.className = 'symbol';
+        tempSymbol.style.position = 'fixed';
+        tempSymbol.style.top = '-9999px';
+        tempSymbol.style.left = '-9999px';
+        tempSymbol.style.visibility = 'hidden';
+        tempSymbol.style.pointerEvents = 'none';
+        tempSymbol.style.fontWeight = '700';
+        tempSymbol.style.lineHeight = '1';
+        tempSymbol.style.whiteSpace = 'nowrap';
+        tempSymbol.style.fontSize = '50px';
+        document.body.appendChild(tempSymbol);
+
+        // Find the widest symbol in pixels in the current card set
+        let widestSymbol = this.symbolSet[0] || '';
+        let maxMeasuredWidth = 0;
+        for (const symbol of this.symbolSet) {
+            tempSymbol.textContent = symbol;
+            const width = tempSymbol.offsetWidth;
+            if (width > maxMeasuredWidth) {
+                maxMeasuredWidth = width;
+                widestSymbol = symbol;
+            }
+        }
+        tempSymbol.textContent = widestSymbol;
+
+        // Proportional padding inside card (accounting for border and inner breathing room)
+        const paddingX = Math.max(14, cardWidth * 0.22);
+        const paddingY = Math.max(14, cardHeight * 0.28);
 
         // Binary search for optimal font size
         let minSize = 10;
@@ -385,7 +398,7 @@ class POJMemoryGame {
             const textWidth = tempSymbol.offsetWidth;
             const textHeight = tempSymbol.offsetHeight;
 
-            if (textWidth <= cardWidth - padding && textHeight <= cardHeight - padding) {
+            if (textWidth <= cardWidth - paddingX && textHeight <= cardHeight - paddingY) {
                 optimalSize = testSize;
                 minSize = testSize;
             } else {
@@ -397,7 +410,7 @@ class POJMemoryGame {
         document.documentElement.style.setProperty('--card-font-size', optimalSize + 'px');
 
         // Clean up
-        document.body.removeChild(tempCard);
+        document.body.removeChild(tempSymbol);
     }
 
     updateStats() {
@@ -611,12 +624,20 @@ document.addEventListener('DOMContentLoaded', () => {
         game.resetGame();
     });
 
-    // Handle window resize
+    // Handle window and board resize
     let resizeTimeout;
-    window.addEventListener('resize', () => {
+    const handleResize = () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
             game.adjustCardFontSize();
-        }, 200);
-    });
+        }, 100);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    const board = document.getElementById('game-board');
+    if (board && typeof ResizeObserver !== 'undefined') {
+        const resizeObserver = new ResizeObserver(handleResize);
+        resizeObserver.observe(board);
+    }
 });
